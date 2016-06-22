@@ -1,0 +1,42 @@
+---
+  - name: oralsnr | Add listener (Oracle Grid)
+    shell: "{{ oracle_home_gi }}/bin/srvctl add listener"
+    when: master_node and oracle_install_option_gi == 'HA_CONFIG'
+    tags: listener
+
+  - name: oralsnr | Create listener.ora (Oracle FS)
+    template: src=listener.ora.j2 dest={{ oracle_home_db }}/network/admin/listener.ora owner={{ oracle_user }} group={{ oracle_group }} mode=644 backup=no
+    when: master_node and oracle_install_option_gi == 'none'
+    tags: listener
+    with_items: oracle_databases
+    register: listener_ora
+
+  - name: oralsnr | Create tnsnames.ora (Oracle FS)
+    template: src=tnsnames.ora.j2 dest={{ oracle_home_db }}/network/admin/tnsnames.ora owner={{ oracle_user }} group={{ oracle_group }} mode=644 backup=no
+    when: master_node and oracle_install_option_gi == 'none'
+    tags: listener
+    with_items: oracle_databases
+    register: tnsnames_ora
+
+  - name: oralsnr | Start listener (Oracle Grid)
+    shell: "{{ oracle_home_gi }}/bin/srvctl start listener"
+    when: master_node and oracle_install_option_gi == 'HA_CONFIG'
+    tags: listener
+
+  - name: oralsnr | Start listener (Oracle FS)
+    shell: "export ORACLE_HOME={{ oracle_home_db }} && ( {{ oracle_home_db }}/bin/lsnrctl status || {{ oracle_home_db }}/bin/lsnrctl start )"
+    when: master_node and oracle_install_option_gi == 'none'
+    tags: listener
+    sudo_user: "{{ oracle_user }}"
+    with_items: oracle_databases
+
+#  - name: oralsnr | Check listener status
+#    shell: {{ oracle_home_gi }}/bin/lsnrctl status
+#    when: master_node and oracle_install_option_gi == 'HA_CONFIG'
+#    tags: listenerstat
+#    register:
+#       - listener
+
+#  - debug: var=listener.stdout_lines
+#    when: master_node and oracle_install_option_gi == 'HA_CONFIG'
+#    tags: listenerstat

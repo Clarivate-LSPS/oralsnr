@@ -1,0 +1,14 @@
+LISTENER=
+ (DESCRIPTION=
+  (ADDRESS=(PROTOCOL=tcp)(HOST=0.0.0.0)(PORT=1521))
+  (ADDRESS = (PROTOCOL = IPC)(KEY = EXTPROC1521))
+)
+
+SID_LIST_LISTENER =
+ (SID_LIST =
+  (SID_DESC =
+   (GLOBAL_DBNAME = {{ item.oracle_db_name }})
+   (ORACLE_HOME = {{ oracle_home_db }})
+   (SID_NAME = {{ item.oracle_db_name }})
+  )
+ )
